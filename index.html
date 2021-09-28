@@ -11,6 +11,15 @@
     <!-- 캐릭터 이름 입력 -->
     <form id="start-screen">
       <input id="name-input" placeholder="이름을 입력해 주세요." />
+      <button id="name-button">입력</button>
+    </form>
+
+    <!-- 캐릭터 직업 선택 -->
+    <form id="job-screen" style="display: none">
+      <div id="job-menu-1">1. 전사</div>
+      <div id="job-menu-2">2. 마법사</div>
+      <div id="job-menu-3">3. 도적</div>
+      <input id="job-input" placeholder="직업을 선택해 주세요." />
       <button id="start-button">시작</button>
     </form>
 
@@ -18,17 +27,22 @@
       <!-- 캐릭터 -->
       <div id="hero-stat">
         <span id="hero-name"></span>
-        <span id="hero-level"></span>
+        <span id="hero-job"></span>
+        <span id="hero-gold"></span>
+        <!-- <span id="hero-level"></span> -->
         <span id="hero-hp"></span>
-        <span id="hero-xp"></span>
+        <!-- <span id="hero-xp"></span> -->
         <span id="hero-att"></span>
+        <span id="hero-def"></span>
+        <span id="hero-weapon"></span>
+        <span id="hero-armor"></span>
       </div>
 
       <!-- 일반 메뉴 -->
       <form id="game-menu" style="display: none">
-        <div id="game-menu-1">1. 모험</div>
-        <div id="game-menu-2">2. 휴식</div>
-        <div id="game-menu-3">3. 종료</div>
+        <div id="game-menu-1">1. 전투</div>
+        <div id="game-menu-2">2. 상점</div>
+        <div id="game-menu-3">3. 인벤토리</div>
         <input id="game-menu-input" />
         <button id="game-menu-button">입력</button>
       </form>
@@ -37,9 +51,31 @@
       <form id="battle-menu" style="display: none">
         <div id="battle-menu-1">1. 공격</div>
         <div id="battle-menu-2">2. 회복</div>
-        <div id="battle-menu-3">3. 도망</div>
+        <div id="battle-menu-3">3. 방어</div>
         <input id="battle-menu-input" />
         <button id="battle-menu-button">입력</button>
+      </form>
+
+      <!-- 상점 메뉴 -->
+      <form id="store-menu" style="display: none">
+        <div id="store-menu-1">1. 무기 (att+10)</div>
+        <div id="store-menu-2">2. 방어구 (def+10)</div>
+        <div id="store-menu-3">3. 물약 (hp+20)</div>
+        <div id="store-menu-4">4. 돌아가기</div>
+        <input id="store-menu-input" />
+        <button id="store-menu-button">입력</button>
+      </form>
+
+      <!-- 인벤토리 메뉴 -->
+      <form id="inventory-menu" style="display: none">
+        <div id="inventory-menu-1">1. 돌아가기</div>
+        <ul id="inventory-list">
+          <li id="inventory-weapon"></li>
+          <li id="inventory-armor"></li>
+          <li id="inventory-liquid"></li>
+        </ul>
+        <input id="inventory-menu-input" />
+        <button id="inventory-menu-button">입력</button>
       </form>
 
       <!-- 로그 -->
@@ -55,14 +91,27 @@
 
     <script>
       const $startScreen = document.querySelector('#start-screen');
+      const $jobScreen = document.querySelector('#job-screen');
       const $gameMenu = document.querySelector('#game-menu');
       const $battleMenu = document.querySelector('#battle-menu');
+      const $storeMenu = document.querySelector('#store-menu');
+
+      const $inventoryMenu = document.querySelector('#inventory-menu');
+      const $inventoryList = document.querySelector('#inventory-list');
+      const $inventoryWeapon = document.querySelector('#inventory-weapon');
+      const $inventoryArmor = document.querySelector('#inventory-armor');
+      const $inventoryLiquid = document.querySelector('#inventory-liquid');
 
       const $heroName = document.querySelector('#hero-name');
-      const $heroLevel = document.querySelector('#hero-level');
+      const $heroJob = document.querySelector('#hero-job');
+      const $heroGold = document.querySelector('#hero-gold');
+      // const $heroLevel = document.querySelector('#hero-level');
       const $heroHp = document.querySelector('#hero-hp');
-      const $heroXp = document.querySelector('#hero-xp');
+      // const $heroXp = document.querySelector('#hero-xp');
       const $heroAtt = document.querySelector('#hero-att');
+      const $heroDef = document.querySelector('#hero-def');
+      const $heroWeapon = document.querySelector('#hero-weapon');
+      const $heroArmor = document.querySelector('#hero-armor');
 
       const $monsterName = document.querySelector('#monster-name');
       const $monsterHp = document.querySelector('#monster-hp');
@@ -71,23 +120,65 @@
       const $message = document.querySelector('#message');
 
       class Game {
-        constructor(name) {
+        constructor(name, job) {
           this.monster = null;
           this.hero = null;
           this.monsterList = [
-            { name: '몬스터 1', hp: 25, att: 10, xp: 10 },
-            { name: '몬스터 2', hp: 50, att: 15, xp: 20 },
-            { name: '몬스터 3', hp: 100, att: 35, xp: 50 },
+            { name: '몬스터 1', hp: 25, att: 10, xp: 10, gold: 50 },
+            { name: '몬스터 2', hp: 50, att: 15, xp: 20, gold: 100 },
+            { name: '몬스터 3', hp: 100, att: 35, xp: 50, gold: 200 },
           ];
-          this.start(name);
+          this.start(name, job);
         }
 
-        start(name) {
+        start(name, job) {
           $gameMenu.addEventListener('submit', this.onGameMenuInput);
           $battleMenu.addEventListener('submit', this.onBattleMenuInput);
+          $storeMenu.addEventListener('submit', this.onStoreMenuInput);
+          $inventoryMenu.addEventListener('submit', this.onInventoryMenuInput);
+
           this.changeScreen('game');
-          this.hero = new Hero(this, name);
+          this.hero = new Hero(this, name, job);
           this.updateHeroStat();
+        }
+
+        changeScreen(screen) {
+          if (screen === 'start') {
+            $startScreen.style.display = 'block';
+            $jobScreen.style.display = 'none';
+            $gameMenu.style.display = 'none';
+            $battleMenu.style.display = 'none';
+            $storeMenu.style.display = 'none';
+            $inventoryMenu.style.display = 'none';
+          } else if (screen === 'game') {
+            $startScreen.style.display = 'none';
+            $jobScreen.style.display = 'none';
+            $gameMenu.style.display = 'block';
+            $battleMenu.style.display = 'none';
+            $storeMenu.style.display = 'none';
+            $inventoryMenu.style.display = 'none';
+          } else if (screen === 'battle') {
+            $startScreen.style.display = 'none';
+            $jobScreen.style.display = 'none';
+            $gameMenu.style.display = 'none';
+            $battleMenu.style.display = 'block';
+            $storeMenu.style.display = 'none';
+            $inventoryMenu.style.display = 'none';
+          } else if (screen === 'store') {
+            $startScreen.style.display = 'none';
+            $jobScreen.style.display = 'none';
+            $gameMenu.style.display = 'none';
+            $battleMenu.style.display = 'none';
+            $storeMenu.style.display = 'block';
+            $inventoryMenu.style.display = 'none';
+          } else if (screen === 'inventory') {
+            $startScreen.style.display = 'none';
+            $jobScreen.style.display = 'none';
+            $gameMenu.style.display = 'none';
+            $battleMenu.style.display = 'nones';
+            $storeMenu.style.display = 'none';
+            $inventoryMenu.style.display = 'block';
+          }
         }
 
         updateHeroStat() {
@@ -95,64 +186,29 @@
 
           if (hero === null) {
             $heroName.textContent = '';
-            $heroLevel.textContent = '';
+            $heroJob.textContent = '';
+            $heroGold.textContent = '';
+            // $heroLevel.textContent = '';
             $heroHp.textContent = '';
-            $heroXp.textContent = '';
+            // $heroXp.textContent = '';
             $heroAtt.textContent = '';
+            $heroDef.textContent = '';
+            $heroWeapon.textContent = '';
+            $heroArmor.textContent = '';
             return;
           }
 
           $heroName.textContent = hero.name;
-          $heroLevel.textContent = `${hero.lev}Lev`;
-          $heroHp.textContent = `HP: ${hero.hp}/${hero.maxHp}`;
-          $heroXp.textContent = `XP: ${hero.xp}/${15 * hero.lev}`;
-          $heroAtt.textContent = `ATT: ${hero.att}`;
+          $heroJob.textContent = hero.job;
+          $heroGold.textContent = ` GOLD: ${hero.gold}`;
+          // $heroLevel.textContent = `${hero.lev}Lev`;
+          $heroHp.textContent = ` HP: ${hero.hp}/${hero.maxHp}`;
+          // $heroXp.textContent = ` XP: ${hero.xp}/${15 * hero.lev}`;
+          $heroAtt.textContent = ` ATT: ${hero.att}`;
+          $heroDef.textContent = ` DEF: ${hero.def}`;
+          $heroWeapon.textContent = ` ${hero.weapon}`;
+          $heroArmor.textContent = ` ${hero.armor}`;
         }
-
-        changeScreen(screen) {
-          if (screen === 'start') {
-            $startScreen.style.display = 'block';
-            $gameMenu.style.display = 'none';
-            $battleMenu.style.display = 'none';
-          } else if (screen === 'game') {
-            $startScreen.style.display = 'none';
-            $gameMenu.style.display = 'block';
-            $battleMenu.style.display = 'none';
-          } else if (screen === 'battle') {
-            $startScreen.style.display = 'none';
-            $gameMenu.style.display = 'none';
-            $battleMenu.style.display = 'block';
-          }
-        }
-
-        onGameMenuInput = (event) => {
-          event.preventDefault();
-          const input = event.target['game-menu-input'].value;
-
-          if (input === '1') {
-            // 모험
-            this.changeScreen('battle');
-            const randomIndex = Math.floor(
-              Math.random() * this.monsterList.length
-            );
-            const randomMonster = this.monsterList[randomIndex];
-
-            this.monster = new Monster(
-              this,
-              randomMonster.name,
-              randomMonster.hp,
-              randomMonster.att,
-              randomMonster.xp
-            );
-
-            this.updateHeroStat();
-            this.showMessage(`${this.monster.name} 와(과) 마주쳤다.`);
-          } else if (input === '2') {
-            // 휴식
-          } else if (input === '3') {
-            // 종료
-          }
-        };
 
         updateMonsterStat() {
           const { monster } = this;
@@ -169,9 +225,39 @@
           $monsterAtt.textContent = `ATT: ${monster.att}`;
         }
 
-        showMessage(text) {
-          $message.textContent = text;
-        }
+        onGameMenuInput = (event) => {
+          event.preventDefault();
+          let input = event.target['game-menu-input'].value;
+
+          if (input === '1') {
+            // 전투
+            this.changeScreen('battle');
+            const randomIndex = Math.floor(
+              Math.random() * this.monsterList.length
+            );
+            const randomMonster = this.monsterList[randomIndex];
+
+            this.monster = new Monster(
+              this,
+              randomMonster.name,
+              randomMonster.hp,
+              randomMonster.att,
+              randomMonster.xp,
+              randomMonster.gold
+            );
+
+            this.updateHeroStat();
+            this.showMessage(`${this.monster.name} 와(과) 마주쳤다.`);
+          } else if (input === '2') {
+            // 상점
+            this.changeScreen('store');
+            event.target['game-menu-input'].value = '';
+          } else if (input === '3') {
+            // 인벤토리
+            this.changeScreen('inventory');
+            event.target['game-menu-input'].value = '';
+          }
+        };
 
         onBattleMenuInput = (event) => {
           event.preventDefault();
@@ -192,21 +278,68 @@
           } else if (input === '2') {
             // 회복
           } else if (input === '3') {
-            // 도망
-            this.changeScreen('game');
+            // 방어
           }
         };
+
+        onStoreMenuInput = (event) => {
+          event.preventDefault();
+          const input = event.target['store-menu-input'].value;
+
+          if (input === '1') {
+            // 무기
+            $inventoryWeapon.textContent = '무기 (att+10)';
+            event.target['store-menu-input'].value = '';
+            $message.textContent = '무기 (att+10) 를 구입했다.';
+          } else if (input === '2') {
+            // 방어구
+            $inventoryArmor.textContent = '방어구 (def+10)';
+            event.target['store-menu-input'].value = '';
+            $message.textContent = '방어구 (def+10) 를 구입했다.';
+          } else if (input === '3') {
+            // 물약
+            $inventoryLiquid.textContent = '물약 (hp+20)';
+            event.target['store-menu-input'].value = '';
+            $message.textContent = '물약 (hp+20) 을 구입했다.';
+          } else if (input === '4') {
+            // 돌아가기
+            this.changeScreen('game');
+            event.target['store-menu-input'].value = '';
+            $message.textContent = '';
+          }
+        };
+
+        onInventoryMenuInput = (event) => {
+          event.preventDefault();
+          const input = event.target['inventory-menu-input'].value;
+
+          if (input === '1') {
+            // 돌아가기
+            this.changeScreen('game');
+            event.target['inventory-menu-input'].value = '';
+          } else if (input === '2') {
+          }
+        };
+
+        showMessage(text) {
+          $message.textContent = text;
+        }
       }
 
       class Hero {
-        constructor(game, name) {
+        constructor(game, name, job) {
           this.game = game;
           this.name = name;
-          this.lev = 1;
+          this.job = job;
+          this.gold = 0;
+          // this.lev = 1;
           this.maxHp = 100;
           this.hp = 100;
-          this.xp = 0;
+          // this.xp = 0;
           this.att = 10;
+          this.def = 10;
+          this.weapon = '';
+          this.armor = '';
         }
 
         attack(target) {
@@ -220,13 +353,14 @@
       }
 
       class Monster {
-        constructor(game, name, hp, att, xp) {
+        constructor(game, name, hp, att, xp, gold) {
           this.game = game;
           this.name = name;
           this.maxHp = hp;
           this.hp = hp;
           this.xp = xp;
           this.att = att;
+          this.gold = gold;
         }
 
         attack(target) {
@@ -239,7 +373,23 @@
       $startScreen.addEventListener('submit', (event) => {
         event.preventDefault();
         const name = event.target['name-input'].value;
-        game = new Game(name);
+        $startScreen.style.display = 'none';
+        $jobScreen.style.display = 'block';
+
+        $jobScreen.addEventListener('submit', (event) => {
+          event.preventDefault();
+
+          if (event.target['job-input'].value === '1') {
+            game = new Game(name, '전사');
+            return;
+          } else if (event.target['job-input'].value === '2') {
+            game = new Game(name, '마법사');
+            return;
+          } else if (event.target['job-input'].value === '3') {
+            game = new Game(name, '도적');
+            return;
+          }
+        });
       });
     </script>
   </body>
