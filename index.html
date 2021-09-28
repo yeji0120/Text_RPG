@@ -59,7 +59,7 @@
       <!-- 상점 메뉴 -->
       <form id="store-menu" style="display: none">
         <div id="store-menu-1">1. 무기 (att+10)</div>
-        <div id="store-menu-2">2. 방어구 (def+10)</div>
+        <div id="store-menu-2">2. 방패 (def+10)</div>
         <div id="store-menu-3">3. 물약 (hp+20)</div>
         <div id="store-menu-4">4. 돌아가기</div>
         <input id="store-menu-input" />
@@ -72,7 +72,7 @@
         <ul id="inventory-list">
           <li id="inventory-weapon"></li>
           <li id="inventory-armor"></li>
-          <li id="inventory-liquid"></li>
+          <li id="inventory-potion"></li>
         </ul>
         <input id="inventory-menu-input" />
         <button id="inventory-menu-button">입력</button>
@@ -100,7 +100,7 @@
       const $inventoryList = document.querySelector('#inventory-list');
       const $inventoryWeapon = document.querySelector('#inventory-weapon');
       const $inventoryArmor = document.querySelector('#inventory-armor');
-      const $inventoryLiquid = document.querySelector('#inventory-liquid');
+      const $inventoryPotion = document.querySelector('#inventory-potion');
 
       const $heroName = document.querySelector('#hero-name');
       const $heroJob = document.querySelector('#hero-job');
@@ -200,14 +200,14 @@
 
           $heroName.textContent = hero.name;
           $heroJob.textContent = hero.job;
-          $heroGold.textContent = ` GOLD: ${hero.gold}`;
+          $heroGold.textContent = `  GOLD: ${hero.gold}`;
           // $heroLevel.textContent = `${hero.lev}Lev`;
-          $heroHp.textContent = ` HP: ${hero.hp}/${hero.maxHp}`;
-          // $heroXp.textContent = ` XP: ${hero.xp}/${15 * hero.lev}`;
-          $heroAtt.textContent = ` ATT: ${hero.att}`;
-          $heroDef.textContent = ` DEF: ${hero.def}`;
-          $heroWeapon.textContent = ` ${hero.weapon}`;
-          $heroArmor.textContent = ` ${hero.armor}`;
+          $heroHp.textContent = `  HP: ${hero.hp}/${hero.maxHp}`;
+          // $heroXp.textContent = `  XP: ${hero.xp}/${15 * hero.lev}`;
+          $heroAtt.textContent = `  ATT: ${hero.att}`;
+          $heroDef.textContent = `  DEF: ${hero.def}`;
+          $heroWeapon.textContent = `  ${hero.weapon}`;
+          $heroArmor.textContent = `  ${hero.armor}`;
         }
 
         updateMonsterStat() {
@@ -288,17 +288,17 @@
 
           if (input === '1') {
             // 무기
-            $inventoryWeapon.textContent = '무기 (att+10)';
+            $inventoryWeapon.textContent = '2. 무기 (att+10)';
             event.target['store-menu-input'].value = '';
             $message.textContent = '무기 (att+10) 를 구입했다.';
           } else if (input === '2') {
-            // 방어구
-            $inventoryArmor.textContent = '방어구 (def+10)';
+            // 방패
+            $inventoryArmor.textContent = '3. 방패 (def+10)';
             event.target['store-menu-input'].value = '';
-            $message.textContent = '방어구 (def+10) 를 구입했다.';
+            $message.textContent = '방패 (def+10) 를 구입했다.';
           } else if (input === '3') {
             // 물약
-            $inventoryLiquid.textContent = '물약 (hp+20)';
+            $inventoryPotion.textContent = '4. 물약 (hp+20)';
             event.target['store-menu-input'].value = '';
             $message.textContent = '물약 (hp+20) 을 구입했다.';
           } else if (input === '4') {
@@ -318,6 +318,11 @@
             this.changeScreen('game');
             event.target['inventory-menu-input'].value = '';
           } else if (input === '2') {
+            // 무기
+          } else if (input === '3') {
+            // 방패
+          } else if (input === '4') {
+            // 물약
           }
         };
 
